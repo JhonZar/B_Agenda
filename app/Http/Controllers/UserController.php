@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Response;
+
 
 class UserController extends Controller
 {
@@ -46,4 +48,90 @@ class UserController extends Controller
             'updated_at' => $profesor->updated_at,
         ], 201);
     }
+
+    public function indexEstudiante(Request $request)
+    {
+        $query = User::where('role', 'estudiante');
+
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where('name', 'like', "%{$q}%");
+        }
+
+        return $query->get([
+            'id', 'name', 'email', 'phone', 'ci', 'created_at', 'updated_at'
+        ]);
+    }
+
+    /**
+     * POST /api/estudiantes
+     */
+    public function storeEstudiante(Request $request)
+    {
+        $data = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'ci'    => 'required|string|unique:users,ci|max:20',
+        ]);
+
+        $data['role']     = 'estudiante';
+        // Si quieres usar CI como contraseña:
+        $data['password'] = bcrypt($data['ci']);
+
+        $estudiante = User::create($data);
+
+        return response()->json([
+            'id'         => $estudiante->id,
+            'name'       => $estudiante->name,
+            'email'      => $estudiante->email,
+            'phone'      => $estudiante->phone,
+            'ci'         => $estudiante->ci,
+            'created_at' => $estudiante->created_at,
+            'updated_at' => $estudiante->updated_at,
+        ], Response::HTTP_CREATED);
+    }
+
+    /**
+     * GET /api/estudiantes/{id}
+     */
+    public function showEstudiante($id)
+    {
+        $estudiante = User::where('role', 'estudiante')->findOrFail($id, [
+            'id', 'name', 'email', 'phone', 'ci', 'created_at', 'updated_at'
+        ]);
+
+        return response()->json($estudiante);
+    }
+
+    /**
+     * PUT /api/estudiantes/{id}
+     */
+    public function updateEstudiante(Request $request, $id)
+    {
+        $estudiante = User::where('role', 'estudiante')->findOrFail($id);
+
+        $data = $request->validate([
+            'name'  => 'sometimes|required|string|max:255',
+            'email' => "sometimes|required|email|unique:users,email,{$id}",
+            'phone' => 'nullable|string|max:20',
+            'ci'    => "sometimes|required|string|unique:users,ci,{$id}|max:20",
+        ]);
+
+        $estudiante->update($data);
+
+        return response()->json($estudiante);
+    }
+
+    /**
+     * DELETE /api/estudiantes/{id}
+     */
+    public function destroyEstudiante($id)
+    {
+        $estudiante = User::where('role', 'estudiante')->findOrFail($id);
+        $estudiante->delete(); // o->forceDelete() si lo prefieres
+
+        return response()->noContent();
+    }
+    
 }

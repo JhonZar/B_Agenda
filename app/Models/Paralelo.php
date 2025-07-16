@@ -29,4 +29,20 @@ class Paralelo extends Model
     {
         return $this->belongsTo(User::class, 'teacher_id');
     }
+
+    public function materias()
+    {
+        return $this->belongsToMany(
+            Materia::class,
+            'paralelo_curso_materia',  
+            'paralelos_id',            
+            'materias_id'              
+        )->withTimestamps();
+    }
+    public function students()
+    {
+        return $this
+            ->belongsToMany(User::class, 'paralelo_estudiante', 'paralelos_id', 'student_id')
+            ->withTimestamps();
+    }
 }

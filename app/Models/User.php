@@ -50,4 +50,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function paralelos()
+    {
+        return $this
+            ->belongsToMany(Paralelo::class, 'paralelo_estudiante', 'student_id', 'paralelos_id')
+            ->withTimestamps();
+    }
 }

@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\ParaleloController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ParaleloMateriaController;
+use App\Http\Controllers\ParaleloEstudianteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +34,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('paralelos', ParaleloController::class);
         Route::get('/profesores', [UserController::class, 'profesores']);
         Route::post('/profesores', [UserController::class, 'storeProfesor']);
+        Route::apiResource('materias', MateriaController::class);
+        Route::apiResource('paralelos.materias', ParaleloMateriaController::class)
+            ->only(['index', 'store', 'destroy']);
+        Route::put(
+            'paralelos/{paralelo}/materias',
+            [ParaleloMateriaController::class, 'update']
+        );
+        Route::apiResource('paralelos.estudiantes', ParaleloEstudianteController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+        Route::put('/paralelos/{paralelo}/estudiantes', [ParaleloEstudianteController::class, 'update']);
+
+        Route::get('/estudiantes',            [UserController::class, 'indexEstudiante']);
+        Route::post('/estudiantes',            [UserController::class, 'storeEstudiante']);
+        Route::get('/estudiantes/{id}',       [UserController::class, 'showEstudiante']);
+        Route::put('/estudiantes/{id}',       [UserController::class, 'updateEstudiante']);
+        Route::delete('/estudiantes/{id}',       [UserController::class, 'destroyEstudiante']);
     });
 
     // Rutas para 'profesor' (y también 'admin' si así lo deseas)
