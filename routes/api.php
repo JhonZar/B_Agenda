@@ -5,9 +5,11 @@ use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\ParaleloController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ParaleloMateriaController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ParaleloEstudianteController;
+use App\Http\Controllers\AgendaController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Route; 
 
 // Rutas públicas (no requieren autenticación)
 Route::post('/register', [AuthController::class, 'register']);
@@ -50,6 +52,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/estudiantes/{id}',       [UserController::class, 'showEstudiante']);
         Route::put('/estudiantes/{id}',       [UserController::class, 'updateEstudiante']);
         Route::delete('/estudiantes/{id}',       [UserController::class, 'destroyEstudiante']);
+
+        Route::get('/attendance/history', [AttendanceController::class, 'index']);
+        Route::get('/attendance',         [AttendanceController::class, 'show']);
+        Route::post('/attendance',        [AttendanceController::class, 'store']);
+
+        Route::apiResource('agendas', AgendaController::class);
+
     });
 
     // Rutas para 'profesor' (y también 'admin' si así lo deseas)

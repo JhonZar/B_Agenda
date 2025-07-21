@@ -1,9 +1,12 @@
 <?php
+// app/Models/Paralelo.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Paralelo extends Model
 {
@@ -17,32 +20,30 @@ class Paralelo extends Model
         'teacher_id',
     ];
 
-    // Constructor personalizado (opcional)
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        // Aquí puedes inicializar valores por defecto si lo necesitas
-    }
-
-    // Relación con el profesor encargado
-    public function teacher()
+    public function teacher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
-    public function materias()
+    public function materias(): BelongsToMany
     {
         return $this->belongsToMany(
             Materia::class,
-            'paralelo_curso_materia',  
-            'paralelos_id',            
-            'materias_id'              
+            'paralelo_curso_materia',
+            // en tu tabla pivote el FK hacia paralelos está en 'paralelos_id'
+            'paralelos_id',
+            // y el FK hacia materias está en 'materias_id'
+            'materias_id'
         )->withTimestamps();
     }
-    public function students()
+
+    public function students(): BelongsToMany
     {
-        return $this
-            ->belongsToMany(User::class, 'paralelo_estudiante', 'paralelos_id', 'student_id')
-            ->withTimestamps();
+        return $this->belongsToMany(
+            User::class,
+            'paralelo_estudiante',
+            'paralelos_id',
+            'student_id'
+        )->withTimestamps();
     }
 }
