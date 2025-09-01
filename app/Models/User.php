@@ -56,4 +56,26 @@ class User extends Authenticatable
             ->belongsToMany(Paralelo::class, 'paralelo_estudiante', 'student_id', 'paralelos_id')
             ->withTimestamps();
     }
+
+    // Padre -> varios Estudiantes
+    public function estudiantes()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'padre_estudiante',
+            'padre_id',
+            'estudiante_id'
+        );
+    }
+
+    // Estudiante -> varios Padres
+    public function padres()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'padre_estudiante',
+            'estudiante_id',
+            'padre_id'
+        );
+    }
 }

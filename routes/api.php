@@ -8,6 +8,9 @@ use App\Http\Controllers\ParaleloMateriaController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ParaleloEstudianteController;
 use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\ReportCategoryController;
+use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\PadreEstudianteController; // <-- NUEVO
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route; 
 
@@ -47,17 +50,34 @@ Route::middleware('auth:sanctum')->group(function () {
             ->only(['index', 'store', 'update', 'destroy']);
         Route::put('/paralelos/{paralelo}/estudiantes', [ParaleloEstudianteController::class, 'update']);
 
+
         Route::get('/estudiantes',            [UserController::class, 'indexEstudiante']);
-        Route::post('/estudiantes',            [UserController::class, 'storeEstudiante']);
+        Route::post('/estudiantes',           [UserController::class, 'storeEstudiante']);
         Route::get('/estudiantes/{id}',       [UserController::class, 'showEstudiante']);
         Route::put('/estudiantes/{id}',       [UserController::class, 'updateEstudiante']);
-        Route::delete('/estudiantes/{id}',       [UserController::class, 'destroyEstudiante']);
+        Route::delete('/estudiantes/{id}',    [UserController::class, 'destroyEstudiante']);
+
+        // Rutas para padres
+        Route::get('/padres',            [UserController::class, 'indexPadre']);
+        Route::post('/padres',           [UserController::class, 'storePadre']);
+        Route::put('/padres/{id}',       [UserController::class, 'updatePadre']);
+        Route::delete('/padres/{id}',    [UserController::class, 'destroyPadre']);
+
+        // Vinculaciones padre-estudiante
+        Route::get('/padres-estudiantes',    [PadreEstudianteController::class, 'index']);
+        Route::post('/padres-estudiantes',   [PadreEstudianteController::class, 'store']);
+        Route::get('/padres-estudiantes/{id}', [PadreEstudianteController::class, 'show']);
+        Route::put('/padres-estudiantes/{id}',  [PadreEstudianteController::class, 'update']);
+        Route::delete('/padres-estudiantes/{id}', [PadreEstudianteController::class, 'destroy']);
 
         Route::get('/attendance/history', [AttendanceController::class, 'index']);
         Route::get('/attendance',         [AttendanceController::class, 'show']);
         Route::post('/attendance',        [AttendanceController::class, 'store']);
 
         Route::apiResource('agendas', AgendaController::class);
+
+        Route::apiResource('report-categories', ReportCategoryController::class);
+        Route::apiResource('reportes', ReporteController::class);
 
     });
 

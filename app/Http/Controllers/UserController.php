@@ -92,6 +92,61 @@ class UserController extends Controller
         ], Response::HTTP_CREATED);
     }
 
+    public function storePadre(Request $request)
+    {
+        $data = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'ci'    => 'required|string|unique:users,ci|max:20',
+        ]);
+
+        $data['role']     = 'padre';
+        $data['password'] = bcrypt($data['ci']);
+
+        $padre = User::create($data);
+
+        return response()->json([
+            'id'         => $padre->id,
+            'name'       => $padre->name,
+            'email'      => $padre->email,
+            'phone'      => $padre->phone,
+            'ci'         => $padre->ci,
+            'created_at' => $padre->created_at,
+            'updated_at' => $padre->updated_at,
+        ], Response::HTTP_CREATED);
+    }
+
+    public function indexPadre(Request $request)
+    {
+        $query = User::where('role', 'padre');
+
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where('name', 'like', "%{$q}%");
+        }
+
+        return $query->get([
+            'id', 'name', 'email', 'phone', 'ci', 'created_at', 'updated_at'
+        ]);
+    }
+
+    public function updatePadre(Request $request, $id)
+    {
+        $padre = User::where('role', 'padre')->findOrFail($id);
+
+        $data = $request->validate([
+            'name'  => 'sometimes|required|string|max:255',
+            'email' => "sometimes|nullable|email|unique:users,email,{$id}",
+            'phone' => 'nullable|string|max:20',
+            'ci'    => "sometimes|required|string|unique:users,ci,{$id}|max:20",
+        ]);
+
+        $padre->update($data);
+
+        return response()->json($padre);
+    }
+
     /**
      * GET /api/estudiantes/{id}
      */
