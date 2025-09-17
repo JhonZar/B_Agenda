@@ -65,6 +65,13 @@ class AttendanceController extends Controller
             'students.*.notes'       => 'nullable|string',
         ]);
 
+        // Authorization: profesor solo puede registrar en sus propios paralelos
+        $paralelo = Paralelo::findOrFail($payload['paralelo_id']);
+        $user = $request->user();
+        if ($user->role !== 'admin' && $paralelo->teacher_id !== $user->id) {
+            return response()->json(['message' => 'No autorizado para este curso'], 403);
+        }
+
         foreach ($payload['students'] as $stu) {
             Asistencia::updateOrCreate(
                 [
@@ -94,12 +101,18 @@ class AttendanceController extends Controller
             'paralelo_id' => 'required|exists:paralelos,id',
         ]);
 
+        // Authorization: profesor solo puede ver sus propios paralelos
+        $paralelo = Paralelo::findOrFail($data['paralelo_id']);
+        $user = $request->user();
+        if ($user->role !== 'admin' && $paralelo->teacher_id !== $user->id) {
+            return response()->json(['message' => 'No autorizado para este curso'], 403);
+        }
+
         $asistencias = Asistencia::with(['estudiante', 'creator'])
             ->where('fecha', $data['date'])
             ->where('paralelo_id', $data['paralelo_id'])
             ->get();
 
-        $paralelo = Paralelo::findOrFail($data['paralelo_id']);
         $parallelName = "{$paralelo->grade}-{$paralelo->section}";
         $first      = $asistencias->first();
         $counts     = $asistencias->pluck('estado')->countBy();

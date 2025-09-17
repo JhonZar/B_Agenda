@@ -10,15 +10,19 @@ use App\Http\Controllers\ParaleloEstudianteController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ReportCategoryController;
 use App\Http\Controllers\ReporteController;
-use App\Http\Controllers\PadreEstudianteController; // <-- NUEVO
+use App\Http\Controllers\PadreEstudianteController; 
+use App\Http\Controllers\PlantillaWhatsappController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route; 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RfidIngestController;
+use App\Http\Controllers\ProfesorController;
 
 // Rutas públicas (no requieren autenticación)
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/send-otp', [AuthController::class, 'sendOtp']);
 Route::post('auth/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/attendance/ingest', [RfidIngestController::class, 'ingest']);
 
 
 // Rutas protegidas (requieren un token de Sanctum)
@@ -71,25 +75,41 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/padres-estudiantes/{id}', [PadreEstudianteController::class, 'destroy']);
 
         Route::get('/attendance/history', [AttendanceController::class, 'index']);
-        Route::get('/attendance',         [AttendanceController::class, 'show']);
-        Route::post('/attendance',        [AttendanceController::class, 'store']);
 
         Route::apiResource('agendas', AgendaController::class);
 
         Route::apiResource('report-categories', ReportCategoryController::class);
-        Route::apiResource('reportes', ReporteController::class);
 
+        // WhatsApp Templates
+        Route::apiResource('whatsapp-templates', PlantillaWhatsappController::class);
+    
+        Route::post('/rfid/assign', [RfidIngestController::class, 'assign']);
     });
 
     // Rutas para 'profesor' (y también 'admin' si así lo deseas)
     Route::middleware('role:profesor,admin')->group(function () {
-        Route::get('/profesor/cursos', function () {
-            return response()->json(['message' => 'Lista de cursos para profesores.']);
-        });
-        Route::post('/profesor/notas', function () {
-            return response()->json(['message' => 'Profesor puede subir notas.']);
-        });
-        // Más rutas para profesores
+        // Cursos del profesor
+        Route::get('/profesor/cursos', [ProfesorController::class, 'cursos']);
+        Route::get('/profesor/cursos/{paralelo}', [ProfesorController::class, 'cursoShow']);
+        Route::get('/profesor/cursos/{paralelo}/materias', [ProfesorController::class, 'cursoMaterias']);
+
+        // Asistencias: profesores y admins pueden crear/consultar
+        Route::get('/attendance',  [AttendanceController::class, 'show']);
+        Route::post('/attendance', [AttendanceController::class, 'store']);
+
+        // Agenda: profesor y admin
+        Route::get('/agendas', [AgendaController::class, 'index']);
+        Route::get('/agendas/{agenda}', [AgendaController::class, 'show']);
+        Route::post('/agendas', [AgendaController::class, 'store']);
+        Route::put('/agendas/{agenda}', [AgendaController::class, 'update']);
+        Route::delete('/agendas/{agenda}', [AgendaController::class, 'destroy']);
+
+        // Reportes
+        Route::apiResource('reportes', ReporteController::class);
+
+        // Categorías de reportes: lectura para profesor (gestión completa ya en admin)
+        Route::get('/report-categories', [ReportCategoryController::class, 'index']);
+        Route::get('/report-categories/{id}', [ReportCategoryController::class, 'show']);
     });
 
     // Rutas para 'padre' (y también 'admin')

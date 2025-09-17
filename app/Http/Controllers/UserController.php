@@ -19,7 +19,13 @@ class UserController extends Controller
         }
 
         return $query->get([
-            'id', 'name', 'email', 'phone', 'ci', 'created_at', 'updated_at'
+            'id',
+            'name',
+            'email',
+            'phone',
+            'ci',
+            'created_at',
+            'updated_at'
         ]);
     }
     public function storeProfesor(Request $request)
@@ -59,7 +65,14 @@ class UserController extends Controller
         }
 
         return $query->get([
-            'id', 'name', 'email', 'phone', 'ci', 'created_at', 'updated_at'
+            'id',
+            'name',
+            'email',
+            'phone',
+            'ci',
+            'rfid',
+            'created_at',
+            'updated_at'
         ]);
     }
 
@@ -72,7 +85,7 @@ class UserController extends Controller
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'phone' => 'nullable|string|max:20',
-            'ci'    => 'required|string|unique:users,ci|max:20',
+            'ci'    => 'nullable|string|unique:users,ci|max:20',
         ]);
 
         $data['role']     = 'estudiante';
@@ -127,7 +140,13 @@ class UserController extends Controller
         }
 
         return $query->get([
-            'id', 'name', 'email', 'phone', 'ci', 'created_at', 'updated_at'
+            'id',
+            'name',
+            'email',
+            'phone',
+            'ci',
+            'created_at',
+            'updated_at'
         ]);
     }
 
@@ -153,7 +172,14 @@ class UserController extends Controller
     public function showEstudiante($id)
     {
         $estudiante = User::where('role', 'estudiante')->findOrFail($id, [
-            'id', 'name', 'email', 'phone', 'ci', 'created_at', 'updated_at'
+            'id',
+            'name',
+            'email',
+            'phone',
+            'ci',
+            'rfid',
+            'created_at',
+            'updated_at'
         ]);
 
         return response()->json($estudiante);
@@ -170,7 +196,8 @@ class UserController extends Controller
             'name'  => 'sometimes|required|string|max:255',
             'email' => "sometimes|required|email|unique:users,email,{$id}",
             'phone' => 'nullable|string|max:20',
-            'ci'    => "sometimes|required|string|unique:users,ci,{$id}|max:20",
+            'ci'    => "sometimes|nullable|string|unique:users,ci,{$id}|max:20",
+            'rfid'  => "sometimes|nullable|string|max:64|unique:users,rfid,{$id}",
         ]);
 
         $estudiante->update($data);
@@ -188,5 +215,4 @@ class UserController extends Controller
 
         return response()->noContent();
     }
-    
 }

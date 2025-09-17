@@ -10,7 +10,18 @@ class PlantillaWhatsapp extends Model
 
     protected $fillable = [
         'name',
+        'subject',
+        'message',
         'content',
+        'category',
+        'status',
+        'target_audience',
+        'variables',
+        'priority',
+        'has_attachment',
+        'is_schedulable',
+        'usage_count',
+        'last_used',
         'created_by',
     ];
 
@@ -18,4 +29,12 @@ class PlantillaWhatsapp extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    protected $casts = [
+        'variables' => 'array',
+        'has_attachment' => 'boolean',
+        'is_schedulable' => 'boolean',
+        'last_used' => 'datetime',
+        'usage_count' => 'integer',
+    ];
 }

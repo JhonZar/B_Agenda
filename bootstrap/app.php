@@ -12,10 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Aliases
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class, 
+            'cors' => \App\Http\Middleware\Cors::class,
         ]);
+
+        // Apply CORS to API group
+        $middleware->appendToGroup('api', \App\Http\Middleware\Cors::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
